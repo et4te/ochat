@@ -41,6 +41,7 @@
   core
   core_unix
   ppx_jane
+  ppx_blob
   ppxlib
   pcre
   re
