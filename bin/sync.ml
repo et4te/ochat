@@ -21,7 +21,7 @@ let init () =
 let test () =
   init ();
   let config = Irmin_git.config root in
-  let repo = Store.Repo.v config in
+  let%lwt repo = Store.Repo.v config in
   let t = Store.of_branch repo "main" in
   let upstream = Store.remote path () in
   let _ = Sync.pull t upstream `Set in
