@@ -1,3 +1,5 @@
+open Lwt.Syntax
+
 let () = Mirage_crypto_rng_unix.use_default ()
 let info = Irmin_git_unix.info
 
@@ -21,18 +23,18 @@ let init () =
 let test () =
   init ();
   let config = Irmin_git.config root in
-  let%lwt repo = Store.Repo.v config in
-  let t = Store.of_branch repo "main" in
-  let upstream = Store.remote path () in
-  let _ = Sync.pull t upstream `Set in
-  let readme = Store.get t [ "Readme.md" ] in
-  let tree = Store.get_tree t [] in
-  let tree = Store.Tree.add tree [ "BAR.md" ] "Hoho!" in
-  let tree = Store.Tree.add tree [ "FOO.md" ] "Hihi!" in
-  Store.set_tree_exn t ~info:(info "merge") [] tree;
+  let* repo = Store.Repo.v config in
+  let* t = Store.of_branch repo "main" in
+  let* upstream = Store.remote path in
+  let* _ = Sync.pull t upstream `Set in
+  let* readme = Store.get t [ "Readme.md" ] in
+  let* tree = Store.get_tree t [] in
+  let* tree = Store.Tree.add tree [ "BAR.md" ] "Hoho!" in
+  let* tree = Store.Tree.add tree [ "FOO.md" ] "Hihi!" in
+  let+ () = Store.set_tree_exn t ~info:(info "merge") [] tree in
   Printf.printf "%s\n%!" readme
 ;;
 
 let () =
-  Eio_main.run @@ fun env -> Lwt_eio.with_event_loop ~clock:env#clock @@ fun _ -> test ()
+  Eio_main.run @@ fun env -> Lwt_eio.with_event_loop ~clock:env#clock @@ fun _ -> Lwt_eio.run_lwt test
 ;;

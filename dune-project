@@ -62,6 +62,9 @@
   irmin
   irmin-git
   irmin-watcher
+  menhir
+  nottui
+  nottui-pretty
   expect_test_helpers_core
   re2
   path_glob
